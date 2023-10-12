@@ -3,7 +3,7 @@ using ChatApp.DAL.Entities;
 
 namespace ChatApp.Bll.Interfaces
 {
-    public interface IDataService
+    public interface IMessageService
     {
         Task<List<News>> SeedDateOnliner(JsonConfigDTO configDTO, DateTime dateTimeStart, DateTime dateTimeEnd, CancellationToken cancellationToken);
         Task<List<News>> SeedDateBelta(JsonConfigDTO configDTO, DateTime dateTimeStart, DateTime dateTimeEnd, CancellationToken cancellationToken);

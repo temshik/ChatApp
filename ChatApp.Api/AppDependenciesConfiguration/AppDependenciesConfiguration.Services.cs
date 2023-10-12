@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ChatApp.Api.Modules;
-using ChatApp.Api.Profiles;
-using ChatApp.Bll.Interfaces;
+﻿using ChatApp.Bll.Interfaces;
 using ChatApp.Bll.Services;
 using ChatApp.DAL;
+using ChatApp.Profiles;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.Api.AppDependenciesConfiguration
 {
@@ -33,7 +32,9 @@ namespace ChatApp.Api.AppDependenciesConfiguration
         /// <returns>A <see cref="IServiceCollection"/></returns>
         public static IServiceCollection ConfigureService(this IServiceCollection services)
         {
-            services.AddScoped<IDataService, DataService>();
+            services
+                .AddScoped<IMessageService, MessageService>()
+                .AddScoped<IRoomService, RoomService>();
 
             return services;
         }
@@ -45,7 +46,9 @@ namespace ChatApp.Api.AppDependenciesConfiguration
         /// <returns>A <see cref="IServiceCollection"/></returns>
         public static IServiceCollection AddMappings(this IServiceCollection services)
         {
-            services.AddAutoMapper(typeof(JsonConfigProfile));
+            services.AddAutoMapper(typeof(MessageProfile));
+            services.AddAutoMapper(typeof(RoomProfile));
+            services.AddAutoMapper(typeof(UserProfile));
 
             return services;
         }

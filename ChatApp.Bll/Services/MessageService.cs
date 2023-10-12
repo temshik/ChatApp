@@ -6,10 +6,10 @@ using ChatApp.DAL.Interfaces;
 
 namespace ChatApp.Bll.Services
 {
-    public class DataService : IDataService
+    public class MessageService : IMessageService
     {
         private IUnitOfWork Database { get; set; }
-        public DataService(IUnitOfWork uow)
+        public MessageService(IUnitOfWork uow)
         {
             Database = uow;
         }

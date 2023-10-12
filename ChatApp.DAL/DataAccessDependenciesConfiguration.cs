@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ChatApp.DAL.EF;
 using ChatApp.DAL.Interfaces;
 using ChatApp.DAL.Repositories;
+using ChatApp.DAL.Entities;
 
 namespace ChatApp.DAL
 {
@@ -20,6 +21,13 @@ namespace ChatApp.DAL
         {
             services
                 .AddDbContext<ApplicationContext>(options);
+            services
+                .AddIdentityCore<ApplicationUser>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+                    options.User.RequireUniqueEmail = true;
+                }).AddEntityFrameworkStores<ApplicationContext>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
