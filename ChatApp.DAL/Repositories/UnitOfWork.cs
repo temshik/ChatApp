@@ -9,6 +9,7 @@ namespace ChatApp.DAL.Repositories
         private readonly ApplicationContext _context;
         public IMessagesRepository MessageSet { get; }
         public IRoomsRepository RoomSet { get; }
+        public IUserRepository UserSet { get; }
 
         /// <summary>
         /// Контроллер класса для реализации патеррна UnitOfWork
@@ -22,6 +23,7 @@ namespace ChatApp.DAL.Repositories
 
             MessageSet = new MessagesRepository(_context, logger);
             RoomSet = new RoomsRepository(_context, logger);
+            UserSet = new UserRepository(_context, logger);
         }
 
         /// <summary>

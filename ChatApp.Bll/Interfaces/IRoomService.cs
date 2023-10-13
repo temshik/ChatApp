@@ -7,8 +7,8 @@ namespace ChatApp.Bll.Interfaces
         bool IsRoomExists(string name);
         Task<IEnumerable<RoomDTO>> GetAsync();
         Task<RoomDTO> GetAsync(Guid id);
-        Task<RoomDTO> EditAsync(Guid id, string roomName, CancellationToken cancellationToken);
-        Task<RoomDTO> CreateAsync(RoomDTO roomDTO, CancellationToken cancellationToken);
-        Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken);
+        Task<RoomDTO> EditAsync(Guid roomId, Guid userId, string roomName, CancellationToken cancellationToken);
+        Task<RoomDTO> CreateAsync(Guid userId, RoomDTO roomDTO, CancellationToken cancellationToken);
+        Task<bool> DeleteAsync(Guid roomId, Guid userId, CancellationToken cancellationToken);
     }
 }

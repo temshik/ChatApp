@@ -37,9 +37,9 @@ namespace ChatApp.Bll.Services
             return roomDTO;
         }
 
-        public async Task<RoomDTO> EditAsync(Guid id, string roomName, CancellationToken cancellationToken)
+        public async Task<RoomDTO> EditAsync(Guid roomId, Guid userId, string roomName, CancellationToken cancellationToken)
         {
-            var room = await Database.RoomSet.GetRoomById(id);            
+            var room = await Database.RoomSet.GetRoomById(roomId, userId);            
             room.Name = roomName;
 
             await Database.SaveAsync(cancellationToken);
@@ -48,9 +48,9 @@ namespace ChatApp.Bll.Services
             return roomDTO;
         }
 
-        public async Task<RoomDTO> CreateAsync(RoomDTO roomDTO, CancellationToken cancellationToken)
-        {
-            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+        public async Task<RoomDTO> CreateAsync(Guid userId, RoomDTO roomDTO, CancellationToken cancellationToken)
+        {            
+            var user = Database.UserSet.Find(u => u.Id == userId);
             var room = new Room()
             {
                 Name = roomDTO.Name,
@@ -65,9 +65,9 @@ namespace ChatApp.Bll.Services
             return roomDto;
         }
 
-        public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync(Guid roomId, Guid userId, CancellationToken cancellationToken)
         {
-            var room = await Database.RoomSet.GetRoomById(id);
+            var room = await Database.RoomSet.GetRoomById(roomId, userId);
 
             var result = Database.RoomSet.Remove(room);
 

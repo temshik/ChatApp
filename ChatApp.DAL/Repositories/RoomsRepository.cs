@@ -40,13 +40,13 @@ namespace ChatApp.DAL.Repositories
             }
         }
 
-        public async Task<Room> GetRoomById(Guid id)
+        public async Task<Room> GetRoomById(Guid roomId, Guid userId)
         {
             try
             {
                 return await _dbSet.AsNoTracking()
                 .Include(u => u.Admin)
-                .Where(m => m.Id == id && m.Admin.UserName == User.Identity.Name)
+                .Where(m => m.Id == roomId && m.Admin.Id == userId)
                 .FirstOrDefaultAsync();
             }
             catch (Exception ex)

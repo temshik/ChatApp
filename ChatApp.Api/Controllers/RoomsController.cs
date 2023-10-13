@@ -24,7 +24,7 @@ namespace ChatApp.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet("Get")]
         public async Task<ActionResult<IEnumerable<RoomResponse>>> Get()
         {
             var rooms = await _roomService.GetAsync();
@@ -34,8 +34,8 @@ namespace ChatApp.Controllers
             return Ok(roomsViewModel);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<RoomResponse>> Get(Guid id)
+        [HttpGet("Get/{id}")]
+        public async Task<ActionResult<RoomResponse>> Get([FromHeader] Guid id)
         {
             var room = await _roomService.GetAsync(id);
             if (room == null)
@@ -45,13 +45,13 @@ namespace ChatApp.Controllers
             return Ok(roomViewModel);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<RoomResponse>> Create(RoomRequest viewModel, CancellationToken cancellationToken)
+        [HttpPost("CreateFor/{userId}")]
+        public async Task<ActionResult<RoomResponse>> Create([FromHeader] Guid userId, RoomRequest viewModel, CancellationToken cancellationToken)
         {
             if (_roomService.IsRoomExists(viewModel.Name))
                 return BadRequest("Invalid room name or room already exists");
 
-            var room = await _roomService.CreateAsync(_mapper.Map<RoomRequest, RoomDTO>(viewModel), cancellationToken);
+            var room = await _roomService.CreateAsync(userId, _mapper.Map<RoomRequest, RoomDTO>(viewModel), cancellationToken);
             if (room == null)
                 return BadRequest();
 
@@ -61,13 +61,13 @@ namespace ChatApp.Controllers
             return CreatedAtAction(nameof(Get), new { id = room.Id }, createdRoom);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(Guid id, RoomRequest viewModel, CancellationToken cancellationToken)
+        [HttpPut("Edit/{roomId}/{userId}")]
+        public async Task<IActionResult> Edit([FromHeader] Guid roomId, [FromHeader] Guid userId, RoomRequest viewModel, CancellationToken cancellationToken)
         {
             if (_roomService.IsRoomExists(viewModel.Name))
                 return BadRequest("Invalid room name or room already exists");
 
-            var room = await _roomService.EditAsync(id, viewModel.Name, cancellationToken);
+            var room = await _roomService.EditAsync(roomId, userId, viewModel.Name, cancellationToken);
             if (room == null)
                 return NotFound();
 
@@ -77,10 +77,10 @@ namespace ChatApp.Controllers
             return CreatedAtAction(nameof(Get), new { id = room.Id }, updatedRoom);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+        [HttpDelete("Delete/{roomId}/By/{userId}")]
+        public async Task<IActionResult> Delete([FromHeader] Guid roomId, [FromHeader] Guid userId, CancellationToken cancellationToken)
         {
-            var room = await _roomService.DeleteAsync(id, cancellationToken);
+            var room = await _roomService.DeleteAsync(roomId, userId, cancellationToken);
 
             if (room == false)
                 return NotFound();

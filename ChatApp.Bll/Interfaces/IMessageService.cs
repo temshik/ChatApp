@@ -6,7 +6,7 @@ namespace ChatApp.Bll.Interfaces
     {
         Task<MessageDTO> GetAsync(Guid id);
         Task<IEnumerable<MessageDTO>> GetMessagesAsync(string roomName);
-        Task<MessageDTO> CreateAsync(MessageDTO messageDTO, CancellationToken cancellationToken);
-        Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken);
+        Task<MessageDTO> CreateAsync(Guid userId, MessageDTO messageDTO, CancellationToken cancellationToken);
+        Task<bool> DeleteAsync(Guid messageId, Guid userId, CancellationToken cancellationToken);
     }
 }

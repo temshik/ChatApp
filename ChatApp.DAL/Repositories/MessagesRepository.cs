@@ -33,13 +33,13 @@ namespace ChatApp.DAL.Repositories
             }
         }
 
-        public async Task<Message> GetMessagesById(Guid id)
+        public async Task<Message> GetMessagesById(Guid messageId, Guid userId)
         {
             try
             {
                 return await _dbSet.AsNoTracking()
                 .Include(u => u.FromUser)
-                .Where(m => m.Id == id && m.FromUser.UserName == User.Identity.Name)
+                .Where(m => m.Id == messageId && m.FromUser.Id == userId)
                 .FirstOrDefaultAsync();
             }
             catch (Exception ex)

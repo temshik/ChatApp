@@ -49,10 +49,10 @@ namespace ChatApp.Controllers
             return Ok(messagesResponse);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<MessageResponse>> Create([FromBody]MessageRequest viewModel, CancellationToken cancellationToken)
+        [HttpPost("CreateFor/{userId}")]
+        public async Task<ActionResult<MessageResponse>> Create(Guid id, [FromBody]MessageRequest viewModel, CancellationToken cancellationToken)
         {
-            var msg = await _messageService.CreateAsync(_mapper.Map<MessageRequest, MessageDTO>(viewModel), cancellationToken);
+            var msg = await _messageService.CreateAsync(id, _mapper.Map<MessageRequest, MessageDTO>(viewModel), cancellationToken);
             if (msg == null)
                 return BadRequest();
 
@@ -63,10 +63,10 @@ namespace ChatApp.Controllers
             return CreatedAtAction(nameof(Get), new { id = msg.Id }, createdMessage);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+        [HttpDelete("Delete/{messageId}/By/{userId}")]
+        public async Task<IActionResult> Delete([FromHeader] Guid messageId, [FromHeader] Guid userId, CancellationToken cancellationToken)
         {
-            var message = await _messageService.DeleteAsync(id, cancellationToken);
+            var message = await _messageService.DeleteAsync(messageId, userId, cancellationToken);
 
             if (message == false)
                 return NotFound();            

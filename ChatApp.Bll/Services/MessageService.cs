@@ -36,9 +36,9 @@ namespace ChatApp.Bll.Services
             return messagesDTOs;
         }
 
-        public async Task<MessageDTO> CreateAsync(MessageDTO messageDTO, CancellationToken cancellationToken)
+        public async Task<MessageDTO> CreateAsync(Guid userId,MessageDTO messageDTO, CancellationToken cancellationToken)
         {
-            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var user = Database.UserSet.Find(u => u.Id == userId);
             var room = Database.RoomSet.Find(r => r.Name == messageDTO.Room);
             if (room == null)
                 return null;
@@ -58,9 +58,9 @@ namespace ChatApp.Bll.Services
             return messageDto;
         }
 
-        public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync(Guid messageId, Guid userId, CancellationToken cancellationToken)
         {
-             var message = await Database.MessageSet.GetMessagesById(id);
+             var message = await Database.MessageSet.GetMessagesById(messageId, userId);
 
             var result = Database.MessageSet.Remove(message);
 
