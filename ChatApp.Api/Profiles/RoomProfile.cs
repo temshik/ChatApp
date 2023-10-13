@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using ChatApp.Bll.DTOs;
-using ChatApp.DAL.Entities;
-using ChatApp.Requests;
+using ChatApp.Response;
 
 namespace ChatApp.Profiles
 {
@@ -10,7 +9,7 @@ namespace ChatApp.Profiles
         public RoomProfile()
         {
             CreateMap<RoomDTO, RoomResponse>()
-                .ForMember(dst => dst.Admin, opt => opt.MapFrom(x => x.Admin.UserName));
+                .ReverseMap();
 
             CreateMap<RoomResponse, RoomDTO>();
         }

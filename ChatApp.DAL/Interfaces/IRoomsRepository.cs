@@ -2,10 +2,10 @@
 
 namespace ChatApp.DAL.Interfaces
 {
-    public interface IRoomsRepository
+    public interface IRoomsRepository : IGenericRepository<Room>
     {
         Task<IEnumerable<Room>> Get();
         bool IsRoomExists(string name);
-        Task<Message> GetRoomById(Guid id)
+        Task<Room> GetRoomById(Guid id);
     }
 }

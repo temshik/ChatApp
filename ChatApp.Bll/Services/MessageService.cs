@@ -1,59 +1,71 @@
-﻿using ChatApp.Bll.DTOs;
-using ChatApp.Bll.Extensions;
+﻿using AutoMapper;
+using ChatApp.Bll.DTOs;
 using ChatApp.Bll.Interfaces;
 using ChatApp.DAL.Entities;
 using ChatApp.DAL.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace ChatApp.Bll.Services
 {
     public class MessageService : IMessageService
     {
         private IUnitOfWork Database { get; set; }
-        public MessageService(IUnitOfWork uow)
+        private IMapper _mapper { get; set; }
+        public MessageService(IUnitOfWork uow, IMapper mapper)
         {
             Database = uow;
+            _mapper = mapper;
+        }
+        
+        public async Task<MessageDTO> GetAsync(Guid id)
+        {        
+           var message = await Database.MessageSet.GetById(id);
+
+           var messageDTO = _mapper.Map<MessageDTO>(message);
+            return messageDTO;
         }
 
-        /// <summary>
-        /// Метод сервиса для декомпозиции кода
-        /// </summary>
-        /// <param name="dateTimeStart"></param>
-        /// <param name="dateTimeEnd"></param>
-        /// <returns></returns>
-        public async Task<List<News>> SeedDateOnliner(JsonConfigDTO configDTO, DateTime dateTimeStart, DateTime dateTimeEnd, CancellationToken cancellationToken)
+        public async Task<IEnumerable<MessageDTO>> GetMessagesAsync(string roomName)
         {
+            var room = Database.RoomSet.Find(r => r.Name == roomName);
 
+            var messages = Database.MessageSet.GetMessagesByRoom(room.Id);
 
+            var messagesDTOs = _mapper.Map<IEnumerable<MessageDTO>>(messages);
+            
+            return messagesDTOs;
         }
 
-        /// <summary>
-        /// Метод сервиса для декомпозиции кода
-        /// </summary>
-        /// <param name="dateTimeStart"></param>
-        /// <param name="dateTimeEnd"></param>
-        /// <returns></returns>
-        public async Task<List<News>> SeedDateBelta(JsonConfigDTO configDTO, DateTime dateTimeStart, DateTime dateTimeEnd, CancellationToken cancellationToken)
+        public async Task<MessageDTO> CreateAsync(MessageDTO messageDTO, CancellationToken cancellationToken)
         {
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var room = Database.RoomSet.Find(r => r.Name == messageDTO.Room);
+            if (room == null)
+                return null;
 
+            var msg = new Message()
+            {
+                Content = Regex.Replace(messageDTO.Content, @"<.*?>", string.Empty),
+                FromUser = user,
+                ToRoom = room,
+                Timestamp = DateTime.Now
+            };
+
+            await Database.MessageSet.Add(msg);
+            await Database.SaveAsync(cancellationToken);
+
+            var messageDto = _mapper.Map<MessageDTO>(msg);
+            return messageDto;
         }
 
-        public IEnumerable<News> GetNewsByDate(DateTime dateTimeStart, DateTime dateTimeEnd, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
+             var message = await Database.MessageSet.GetMessagesById(id);
 
-        }
+            var result = Database.MessageSet.Remove(message);
 
-        /// <summary>
-        /// Метод сервиса для декомпозиции кода
-        /// </summary>
-        /// <returns></returns>
-        public async Task<List<News>> SeedNews(JsonConfigDTO configDTO, string link, CancellationToken cancellationToken)
-        {
-
-        }
-
-        public void Dispose()
-        {
-            Database.Dispose();
+            await Database.SaveAsync(cancellationToken);
+            return result;
         }
     }
 }

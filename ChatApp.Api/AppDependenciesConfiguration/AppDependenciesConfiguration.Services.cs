@@ -46,9 +46,7 @@ namespace ChatApp.Api.AppDependenciesConfiguration
         /// <returns>A <see cref="IServiceCollection"/></returns>
         public static IServiceCollection AddMappings(this IServiceCollection services)
         {
-            services.AddAutoMapper(typeof(MessageProfile));
-            services.AddAutoMapper(typeof(RoomProfile));
-            services.AddAutoMapper(typeof(UserProfile));
+            services.AddAutoMapper(typeof(MessageProfile), typeof(RoomProfile), typeof(UserProfile));
 
             return services;
         }

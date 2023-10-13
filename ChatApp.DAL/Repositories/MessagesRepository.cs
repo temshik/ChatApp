@@ -22,7 +22,7 @@ namespace ChatApp.DAL.Repositories
                 .Include(m => m.ToRoom)
                 .OrderByDescending(m => m.Timestamp)
                 .Take(20)
-                .AsEnumerable()
+                //.AsEnumerable()
                 .Reverse()
                 .ToListAsync();
             }

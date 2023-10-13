@@ -1,15 +1,12 @@
 ﻿using ChatApp.Bll.DTOs;
-using ChatApp.DAL.Entities;
 
 namespace ChatApp.Bll.Interfaces
 {
     public interface IMessageService
     {
-        Task<List<News>> SeedDateOnliner(JsonConfigDTO configDTO, DateTime dateTimeStart, DateTime dateTimeEnd, CancellationToken cancellationToken);
-        Task<List<News>> SeedDateBelta(JsonConfigDTO configDTO, DateTime dateTimeStart, DateTime dateTimeEnd, CancellationToken cancellationToken);
-        IEnumerable<News> GetNewsByDate(DateTime dateTimeStart, DateTime dateTimeEnd, CancellationToken cancellationToken);
-        Task<List<News>> SeedNews(JsonConfigDTO configDTO, string link, CancellationToken cancellationToken);
-
-        void Dispose();
+        Task<MessageDTO> GetAsync(Guid id);
+        Task<IEnumerable<MessageDTO>> GetMessagesAsync(string roomName);
+        Task<MessageDTO> CreateAsync(MessageDTO messageDTO, CancellationToken cancellationToken);
+        Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken);
     }
 }

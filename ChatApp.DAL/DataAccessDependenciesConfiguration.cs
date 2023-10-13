@@ -30,6 +30,8 @@ namespace ChatApp.DAL
                 }).AddEntityFrameworkStores<ApplicationContext>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IMessagesRepository, MessagesRepository>();
+            services.AddScoped<IRoomsRepository, RoomsRepository>();
 
             return services;
         }

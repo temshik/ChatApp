@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using ChatApp.Bll.DTOs;
-using ChatApp.Requests;
+using ChatApp.Response;
 
 namespace ChatApp.Profiles
 {
@@ -9,7 +9,7 @@ namespace ChatApp.Profiles
         public UserProfile()
         {
             CreateMap<UserDTO, UserResponse>()
-                .ForMember(dst => dst.UserName, opt => opt.MapFrom(x => x.UserName));
+                .ReverseMap();
 
             CreateMap<UserResponse, UserDTO>();
         }

@@ -1,5 +1,4 @@
 ﻿using ChatApp.DAL.EF;
-using ChatApp.DAL.Entities;
 using ChatApp.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

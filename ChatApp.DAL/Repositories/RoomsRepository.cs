@@ -40,7 +40,7 @@ namespace ChatApp.DAL.Repositories
             }
         }
 
-        public async Task<Message> GetRoomById(Guid id)
+        public async Task<Room> GetRoomById(Guid id)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace ChatApp.DAL.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{Repo} All function error", typeof(MessagesRepository));
+                _logger.LogError(ex, "{Repo} All function error", typeof(RoomsRepository));
                 throw;
             }
         }
