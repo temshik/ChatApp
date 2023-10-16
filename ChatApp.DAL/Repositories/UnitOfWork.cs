@@ -32,11 +32,17 @@ namespace ChatApp.DAL.Repositories
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> SaveAsync(CancellationToken cancellationToken)
+        public async Task<int> SaveAsync(CancellationToken cancellationToken)
         {
-            var result = await _context.SaveChangesAsync(cancellationToken);
-
-            return result > 0;
+            try
+            {
+                return await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong in the {nameof(SaveAsync)} action {ex}");
+                return 0;
+            }
         }
 
         public void Dispose()

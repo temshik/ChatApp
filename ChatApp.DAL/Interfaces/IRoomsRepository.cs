@@ -6,6 +6,6 @@ namespace ChatApp.DAL.Interfaces
     {
         Task<IEnumerable<Room>> Get();
         bool IsRoomExists(string name);
-        Task<Room> GetRoomById(Guid roomId, Guid userID);
+        Task<Room?> GetRoomById(Guid roomId, Guid userID);
     }
 }

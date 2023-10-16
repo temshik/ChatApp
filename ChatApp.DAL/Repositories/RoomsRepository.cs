@@ -40,7 +40,7 @@ namespace ChatApp.DAL.Repositories
             }
         }
 
-        public async Task<Room> GetRoomById(Guid roomId, Guid userId)
+        public async Task<Room?> GetRoomById(Guid roomId, Guid userId)
         {
             try
             {

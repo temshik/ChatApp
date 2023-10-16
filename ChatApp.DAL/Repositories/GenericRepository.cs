@@ -2,6 +2,7 @@
 using ChatApp.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace ChatApp.DAL.Repositories
 {
@@ -29,7 +30,7 @@ namespace ChatApp.DAL.Repositories
             }
         }
 
-        public virtual async Task<IEnumerable<T>> All()
+        public virtual async Task<IEnumerable<T>?> All()
         {
             try
             {
@@ -38,11 +39,11 @@ namespace ChatApp.DAL.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{Repo} All function error", typeof(GenericRepository<T>));
-                throw;
+                return null;
             }
         }
 
-        public virtual T Find(Func<T, bool> predicate)
+        public virtual T? Find(Func<T, bool> predicate)
         {
             try
             {
@@ -51,40 +52,44 @@ namespace ChatApp.DAL.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{Repo} All function error", typeof(GenericRepository<T>));
-                throw;
+                return null;
             }
         }
 
-        public virtual async Task<T?> GetById(Guid id)
+        public virtual async Task<T?> GetByIdAsync(Guid id)
         {
-            return await _dbSet.FindAsync(id);
+            try
+            {
+                return await _dbSet.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong in the {nameof(GetByIdAsync)} action {ex}");
+                return null;
+            }
         }
 
-        public virtual bool Remove(T item)
+        public virtual void Remove(T item)
         {
             try
             {
                 _dbSet.Remove(item);
-                return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{Repo} All function error", typeof(GenericRepository<T>));
-                throw;
             }
         }
 
-        public virtual bool Update(T item)
+        public virtual void Update(T item)
         {
             try
             {
                 _dbSet.Update(item);
-                return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{Repo} All function error", typeof(GenericRepository<T>));
-                throw;
             }
         }
     }

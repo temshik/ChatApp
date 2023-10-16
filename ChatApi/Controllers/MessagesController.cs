@@ -22,8 +22,8 @@ namespace ChatApp.Controllers
             _logger = logger;
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<RoomResponse>> Get(Guid id)
+        [HttpGet("{id:Guid}")]
+        public async Task<ActionResult<RoomResponse>> Get([FromRoute] Guid id)
         {
             var message = await _messageService.GetAsync(id);
             if (message == null)
@@ -45,8 +45,8 @@ namespace ChatApp.Controllers
             return Ok(messagesResponse);
         }
 
-        [HttpPost("CreateFor/{userId}")]
-        public async Task<ActionResult<MessageResponse>> Create(Guid userId, [FromBody] MessageRequest viewModel, CancellationToken cancellationToken)
+        [HttpPost("CreateFor/{userId:Guid}")]
+        public async Task<ActionResult<MessageResponse>> Create([FromRoute] Guid userId, [FromBody] MessageRequest viewModel, CancellationToken cancellationToken)
         {
             var msg = await _messageService.CreateAsync(userId, _mapper.Map<MessageRequest, MessageDTO>(viewModel), cancellationToken);
             if (msg == null)

@@ -5,88 +5,144 @@ using ChatApp.Bll.Interfaces;
 using ChatApp.DAL.Entities;
 using ChatApp.DAL.Interfaces;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
 namespace ChatApp.Bll.Services
 {
     public class RoomService : IRoomService
     {
         private IUnitOfWork Database { get; set; }
+        public readonly ILogger _logger;
         private IMapper _mapper { get; set; }
         private readonly IHubContext<ChatHub> _hubContext;
-        public RoomService(IUnitOfWork uow, IMapper mapper, IHubContext<ChatHub> hubContext)
+
+        public RoomService(IUnitOfWork uow, ILogger logger, IMapper mapper, IHubContext<ChatHub> hubContext)
         {
             Database = uow;
+            _logger = logger;
             _mapper = mapper;
             _hubContext = hubContext;
         }
 
         public bool IsRoomExists(string name)
         {
-            return Database.RoomSet.IsRoomExists(name);
+            return Database.RoomSet.IsRoomExists(name);            
         }
 
-        public async Task<IEnumerable<RoomDTO>> GetAsync()
+        public async Task<IEnumerable<RoomDTO>?> GetAsync()
         {
-            var rooms = await Database.RoomSet.Get();
+            try
+            {
+                var rooms = await Database.RoomSet.Get();
+                if (rooms == null)
+                    return null;
 
-            var roomDTOs = _mapper.Map<IEnumerable<RoomDTO>>(rooms);
-            return roomDTOs;
+                var roomDTOs = _mapper.Map<IEnumerable<RoomDTO>>(rooms);
+                return roomDTOs;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Non correct values in the {nameof(GetAsync)} action {ex}");
+                return null;
+            }
         }
 
-        public async Task<RoomDTO> GetAsync(Guid id)
+        public async Task<RoomDTO?> GetAsync(Guid id)
         {
-            var room = await Database.RoomSet.GetById(id);
+            try
+            {
+                var room = await Database.RoomSet.GetByIdAsync(id);
+                if (room == null)
+                    return null;
 
-            var roomDTO = _mapper.Map<RoomDTO>(room);
-            return roomDTO;
+                var roomDTO = _mapper.Map<RoomDTO>(room);
+                return roomDTO;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Non correct values in the {nameof(GetAsync)} action {ex}");
+                return null;
+            }
         }
 
-        public async Task<RoomDTO> EditAsync(Guid roomId, Guid userId, string roomName, CancellationToken cancellationToken)
+        public async Task<RoomDTO?> EditAsync(Guid roomId, Guid userId, string roomName, CancellationToken cancellationToken)
         {
-            var room = await Database.RoomSet.GetRoomById(roomId, userId);
-            room.Name = roomName;
+            try
+            {
+                var room = await Database.RoomSet.GetRoomById(roomId, userId);
+                if (room == null)
+                    return null;
 
-            if (Database.RoomSet.Update(room))
+                room.Name = roomName;
+
+                Database.RoomSet.Update(room);
                 await Database.SaveAsync(cancellationToken);
 
-            var roomDTO = _mapper.Map<RoomDTO>(room);
+                var roomDTO = _mapper.Map<RoomDTO>(room);
 
-            await _hubContext.Clients.All.SendAsync("updateChatRoom", roomDTO);
+                await _hubContext.Clients.All.SendAsync("updateChatRoom", roomDTO);
 
-            return roomDTO;
+                return roomDTO;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Non correct values in the {nameof(EditAsync)} action {ex}");
+                return null;
+            }
         }
 
-        public async Task<RoomDTO> CreateAsync(Guid userId, RoomDTO roomDTO, CancellationToken cancellationToken)
+        public async Task<RoomDTO?> CreateAsync(Guid userId, RoomDTO roomDTO, CancellationToken cancellationToken)
         {
-            var user = Database.UserSet.Find(u => u.Id == userId);
-            var room = new Room()
+            try
             {
-                Id = Guid.NewGuid(),
-                Name = roomDTO.Name,
-                AdminId = user.Id
-            };
+                var user = Database.UserSet.Find(u => u.Id == userId);
+                if(user == null) 
+                    return null;
 
-            await Database.RoomSet.AddAsync(room);
-            await Database.SaveAsync(cancellationToken);
+                var room = new Room()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = roomDTO.Name,
+                    AdminId = user.Id
+                };
 
-            var roomDto = _mapper.Map<Room, RoomDTO>(room);
+                await Database.RoomSet.AddAsync(room);
+                await Database.SaveAsync(cancellationToken);
 
-            await _hubContext.Clients.All.SendAsync("addChatRoom", roomDto);
+                var roomDto = _mapper.Map<Room, RoomDTO>(room);
 
-            return roomDto;
+                await _hubContext.Clients.All.SendAsync("addChatRoom", roomDto);
+
+                return roomDto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Non correct values in the {nameof(CreateAsync)} action {ex}");
+                return null;
+            }
         }
 
         public async Task<bool> DeleteAsync(Guid roomId, Guid userId, CancellationToken cancellationToken)
         {
-            var room = await Database.RoomSet.GetRoomById(roomId, userId);
+            try
+            {
+                var room = await Database.RoomSet.GetRoomById(roomId, userId);
+                if (room == null)
+                    return false;
 
-            if (Database.RoomSet.Remove(room))
+                Database.RoomSet.Remove(room);
                 await Database.SaveAsync(cancellationToken);
 
-            await _hubContext.Clients.All.SendAsync("removeChatRoom", room.Id);
-            await _hubContext.Clients.Group(room.Name).SendAsync("onRoomDeleted");
+                await _hubContext.Clients.All.SendAsync("removeChatRoom", room.Id);
+                await _hubContext.Clients.Group(room.Name).SendAsync("onRoomDeleted");
 
-            return true;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Non correct values in the {nameof(DeleteAsync)} action {ex}");
+                return false;
+            }
         }
     }
 }

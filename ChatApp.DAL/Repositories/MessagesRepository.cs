@@ -22,7 +22,6 @@ namespace ChatApp.DAL.Repositories
                 .Include(m => m.ToRoom)
                 .OrderByDescending(m => m.Timestamp)
                 .Take(20)
-                //.AsEnumerable()
                 .Reverse()
                 .ToListAsync();
             }
@@ -33,7 +32,7 @@ namespace ChatApp.DAL.Repositories
             }
         }
 
-        public async Task<Message> GetMessagesById(Guid messageId, Guid userId)
+        public async Task<Message?> GetMessagesById(Guid messageId, Guid userId)
         {
             try
             {

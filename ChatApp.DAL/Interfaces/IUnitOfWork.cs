@@ -5,7 +5,7 @@
         IMessagesRepository MessageSet { get; }
         IRoomsRepository RoomSet { get; }
         IUserRepository UserSet { get; }
-        Task<bool> SaveAsync(CancellationToken cancellationToken);
+        Task<int> SaveAsync(CancellationToken cancellationToken);
         void Dispose();
     }
 }

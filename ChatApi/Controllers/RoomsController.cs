@@ -26,14 +26,16 @@ namespace ChatApp.Controllers
         public async Task<ActionResult<IEnumerable<RoomResponse>>> Get()
         {
             var rooms = await _roomService.GetAsync();
+            if (rooms == null) 
+                return NotFound();
 
             var roomsViewModel = _mapper.Map<IEnumerable<RoomDTO>, IEnumerable<RoomResponse>>(rooms);
 
             return Ok(roomsViewModel);
         }
 
-        [HttpGet("Get/{roomId}")]
-        public async Task<ActionResult<RoomResponse>> GetById(Guid roomId)
+        [HttpGet("Get/{roomId:Guid}")]
+        public async Task<ActionResult<RoomResponse>> GetById([FromRoute] Guid roomId)
         {
             var room = await _roomService.GetAsync(roomId);
             if (room == null)
@@ -79,7 +81,7 @@ namespace ChatApp.Controllers
             var room = await _roomService.DeleteAsync(roomId, userId, cancellationToken);
 
             if (room == false)
-                return NotFound();
+                return BadRequest("Invalid room id or there are no permissions to do the operation");
 
             return Ok();
         }
