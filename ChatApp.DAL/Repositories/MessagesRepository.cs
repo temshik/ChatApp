@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-using ChatApp.DAL.EF;
+﻿using ChatApp.DAL.EF;
 using ChatApp.DAL.Entities;
 using ChatApp.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ChatApp.DAL.Repositories
 {

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using ChatApp.Bll.DTOs;
+using ChatApp.Bll.Hubs;
 using ChatApp.Bll.Interfaces;
 using ChatApp.DAL.Entities;
 using ChatApp.DAL.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 
 namespace ChatApp.Bll.Services
 {
@@ -10,10 +12,12 @@ namespace ChatApp.Bll.Services
     {
         private IUnitOfWork Database { get; set; }
         private IMapper _mapper { get; set; }
-        public RoomService(IUnitOfWork uow, IMapper mapper)
+        private readonly IHubContext<ChatHub> _hubContext;
+        public RoomService(IUnitOfWork uow, IMapper mapper, IHubContext<ChatHub> hubContext)
         {
             Database = uow;
             _mapper = mapper;
+            _hubContext = hubContext;
         }
 
         public bool IsRoomExists(string name)
@@ -39,28 +43,35 @@ namespace ChatApp.Bll.Services
 
         public async Task<RoomDTO> EditAsync(Guid roomId, Guid userId, string roomName, CancellationToken cancellationToken)
         {
-            var room = await Database.RoomSet.GetRoomById(roomId, userId);            
+            var room = await Database.RoomSet.GetRoomById(roomId, userId);
             room.Name = roomName;
 
-            await Database.SaveAsync(cancellationToken);
+            if (Database.RoomSet.Update(room))
+                await Database.SaveAsync(cancellationToken);
 
             var roomDTO = _mapper.Map<RoomDTO>(room);
+
+            await _hubContext.Clients.All.SendAsync("updateChatRoom", roomDTO);
+
             return roomDTO;
         }
 
         public async Task<RoomDTO> CreateAsync(Guid userId, RoomDTO roomDTO, CancellationToken cancellationToken)
-        {            
+        {
             var user = Database.UserSet.Find(u => u.Id == userId);
             var room = new Room()
             {
+                Id = Guid.NewGuid(),
                 Name = roomDTO.Name,
-                Admin = user
+                AdminId = user.Id
             };
 
-            await Database.RoomSet.Add(room);
+            await Database.RoomSet.AddAsync(room);
             await Database.SaveAsync(cancellationToken);
 
             var roomDto = _mapper.Map<Room, RoomDTO>(room);
+
+            await _hubContext.Clients.All.SendAsync("addChatRoom", roomDto);
 
             return roomDto;
         }
@@ -69,11 +80,13 @@ namespace ChatApp.Bll.Services
         {
             var room = await Database.RoomSet.GetRoomById(roomId, userId);
 
-            var result = Database.RoomSet.Remove(room);
+            if (Database.RoomSet.Remove(room))
+                await Database.SaveAsync(cancellationToken);
 
-            await Database.SaveAsync(cancellationToken);
+            await _hubContext.Clients.All.SendAsync("removeChatRoom", room.Id);
+            await _hubContext.Clients.Group(room.Name).SendAsync("onRoomDeleted");
 
-            return result;
+            return true;
         }
     }
 }

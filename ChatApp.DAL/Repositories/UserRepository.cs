@@ -8,7 +8,7 @@ namespace ChatApp.DAL.Repositories
     public class UserRepository : GenericRepository<ApplicationUser>, IUserRepository
     {
         public UserRepository(ApplicationContext context, ILogger logger) : base(context, logger)
-        {                
+        {
         }
     }
 }

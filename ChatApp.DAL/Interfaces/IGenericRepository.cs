@@ -5,7 +5,8 @@
         Task<IEnumerable<T>> All();
         Task<T?> GetById(Guid id);
         T Find(Func<T, Boolean> predicate);
-        Task<bool> Add(T item);
+        Task AddAsync(T item);
         bool Remove(T item);
+        bool Update(T item);
     }
 }

@@ -16,6 +16,11 @@ namespace ChatApp.DAL.Configurations
                 .WithMany(m => m.Messages)
                 .HasForeignKey(s => s.ToRoomId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(s => s.FromUser)
+                .WithMany(m => m.Messages)
+                .HasForeignKey(s => s.FromUserId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

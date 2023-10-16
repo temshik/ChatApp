@@ -50,5 +50,17 @@ namespace ChatApp.Api.AppDependenciesConfiguration
 
             return services;
         }
+
+        /// <summary>
+        /// Function to add SingleR to the application service.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <returns>A <see cref="IServiceCollection"/></returns>
+        public static IServiceCollection AddSingleR(this IServiceCollection services)
+        {
+            services.AddSignalR();
+
+            return services;
+        }
     }
 }

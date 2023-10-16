@@ -1,6 +1,6 @@
-﻿namespace ChatApp.Bll.DTOs
+﻿namespace ChatApp.Requests
 {
-    public class UserDTO
+    public class UserRequest
     {
         public string UserName { get; set; }
         public string FullName { get; set; }

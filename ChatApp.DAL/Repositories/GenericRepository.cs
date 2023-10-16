@@ -17,10 +17,16 @@ namespace ChatApp.DAL.Repositories
             _logger = logger;
             _dbSet = context.Set<T>();
         }
-        public virtual async Task<bool> Add(T item)
+        public virtual async Task AddAsync(T item)
         {
-            await _dbSet.AddAsync(item);
-            return true;
+            try
+            {
+                await _dbSet.AddAsync(item);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong in the {nameof(AddAsync)} action {ex}");
+            }
         }
 
         public virtual async Task<IEnumerable<T>> All()
@@ -59,6 +65,20 @@ namespace ChatApp.DAL.Repositories
             try
             {
                 _dbSet.Remove(item);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Repo} All function error", typeof(GenericRepository<T>));
+                throw;
+            }
+        }
+
+        public virtual bool Update(T item)
+        {
+            try
+            {
+                _dbSet.Update(item);
                 return true;
             }
             catch (Exception ex)

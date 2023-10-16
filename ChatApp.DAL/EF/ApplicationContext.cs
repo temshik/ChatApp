@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ChatApp.DAL.Configurations;
 using ChatApp.DAL.Entities;
-using ChatApp.DAL.Configurations;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.DAL.EF
 {
@@ -10,10 +10,10 @@ namespace ChatApp.DAL.EF
         public DbSet<Room> RoomSet { get; set; } = null!;
         public DbSet<ApplicationUser> AppUsers { get; set; } = null!;
 
-        public ApplicationContext()
-        {
-            Database.EnsureCreated();
-        }
+        /*        public ApplicationContext()
+                {
+                    Database.EnsureCreated();
+                }*/
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) { }
 
@@ -23,10 +23,13 @@ namespace ChatApp.DAL.EF
         /// <param name="modelBuilder">The model builder</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationContext).Assembly);
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfiguration(new MessageConfiguration());
             modelBuilder.ApplyConfiguration(new RoomConfiguration());
+
+            //modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }

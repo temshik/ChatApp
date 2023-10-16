@@ -1,6 +1,6 @@
 ﻿using ChatApp.DAL.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChatApp.DAL.Configurations
 {
@@ -14,6 +14,8 @@ namespace ChatApp.DAL.Configurations
 
             builder.HasOne(s => s.Admin)
                 .WithMany(u => u.Rooms)
+                .HasForeignKey(s => s.AdminId)
+                .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired();
         }
     }

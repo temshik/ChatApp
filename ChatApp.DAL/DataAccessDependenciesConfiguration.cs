@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using ChatApp.DAL.EF;
+﻿using ChatApp.DAL.EF;
+using ChatApp.DAL.Entities;
 using ChatApp.DAL.Interfaces;
 using ChatApp.DAL.Repositories;
-using ChatApp.DAL.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ChatApp.DAL
 {
@@ -20,18 +20,17 @@ namespace ChatApp.DAL
         public static IServiceCollection ConfigureServicesApplication(this IServiceCollection services, Action<DbContextOptionsBuilder> options)
         {
             services
-                .AddDbContext<ApplicationContext>(options);
-            services
-                .AddIdentityCore<ApplicationUser>(options =>
-                {
-                    options.SignIn.RequireConfirmedAccount = false;
-                    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
-                    options.User.RequireUniqueEmail = true;
-                }).AddEntityFrameworkStores<ApplicationContext>();
+                .AddDbContext<ApplicationContext>(options)
+                .AddScoped(serviceProvider =>
+            serviceProvider.GetRequiredService<ApplicationContext>().Set<Room>())
+                .AddScoped(serviceProvider =>
+            serviceProvider.GetRequiredService<ApplicationContext>().Set<ApplicationUser>())
+                 .AddScoped(serviceProvider =>
+            serviceProvider.GetRequiredService<ApplicationContext>().Set<Message>());
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IMessagesRepository, MessagesRepository>();
-            services.AddScoped<IRoomsRepository, RoomsRepository>();
+            /*services.AddScoped<IMessagesRepository, MessagesRepository>();
+            services.AddScoped<IRoomsRepository, RoomsRepository>();*/
 
             return services;
         }

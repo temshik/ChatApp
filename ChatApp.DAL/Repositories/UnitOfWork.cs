@@ -1,12 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
-using ChatApp.DAL.EF;
+﻿using ChatApp.DAL.EF;
 using ChatApp.DAL.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace ChatApp.DAL.Repositories
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private readonly ApplicationContext _context;
+        private readonly ILogger _logger;
         public IMessagesRepository MessageSet { get; }
         public IRoomsRepository RoomSet { get; }
         public IUserRepository UserSet { get; }
@@ -19,11 +20,11 @@ namespace ChatApp.DAL.Repositories
         public UnitOfWork(ApplicationContext context, ILoggerFactory loggerFactory)
         {
             _context = context;
-            var logger = loggerFactory.CreateLogger("logs");
+            _logger = loggerFactory.CreateLogger("logs");
 
-            MessageSet = new MessagesRepository(_context, logger);
-            RoomSet = new RoomsRepository(_context, logger);
-            UserSet = new UserRepository(_context, logger);
+            MessageSet = new MessagesRepository(_context, _logger);
+            RoomSet = new RoomsRepository(_context, _logger);
+            UserSet = new UserRepository(_context, _logger);
         }
 
         /// <summary>
