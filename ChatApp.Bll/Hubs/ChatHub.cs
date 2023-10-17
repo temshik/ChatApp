@@ -20,12 +20,12 @@ namespace ChatApp.Bll.Hubs
             _mapper = mapper;
         }
 
-        public async Task SendPrivate(string receiverName, string message)
+        public async Task SendPrivate(string receiverName, string message, string sederName)
         {
             if (_ConnectionsMap.TryGetValue(receiverName, out string userId))
             {
                 // Who is the sender;
-                var sender = _Connections.Where(u => u.UserName == IdentityName).First();
+                var sender = _Connections.Where(u => u.UserName == sederName).First();
 
                 if (!string.IsNullOrEmpty(message.Trim()))
                 {
@@ -47,11 +47,11 @@ namespace ChatApp.Bll.Hubs
             }
         }
 
-        public async Task Join(string roomName)
+        public async Task Join(string roomName, string userName)
         {
             try
             {
-                var user = _Connections.Where(u => u.UserName == IdentityName).FirstOrDefault();
+                var user = _Connections.Where(u => u.UserName == userName).FirstOrDefault();
                 if (user != null && user.CurrentRoom != roomName)
                 {
                     // Remove user from others list
@@ -83,56 +83,47 @@ namespace ChatApp.Bll.Hubs
             return _Connections.Where(u => u.CurrentRoom == roomName).ToList();
         }
 
-        public override Task OnConnectedAsync()
+        public async Task ConnectAsync(string userName)
         {
             try
-            {
-                //var user = _context.Users.Where(u => u.UserName == IdentityName).FirstOrDefault();
-                var user = Database.UserSet.Find(u => u.Name == IdentityName);
+            {                
+                var user = Database.UserSet.Find(u => u.Name == userName);
 
                 var userViewModel = _mapper.Map<ApplicationUser, UserDTO>(user);
 
                 userViewModel.CurrentRoom = "";
 
-                if (!_Connections.Any(u => u.UserName == IdentityName))
+                if (!_Connections.Any(u => u.UserName == userName))
                 {
                     _Connections.Add(userViewModel);
-                    _ConnectionsMap.Add(IdentityName, Context.ConnectionId);
+                    _ConnectionsMap.Add(userName, Context.ConnectionId);
                 }
 
-                Clients.Caller.SendAsync("getProfileInfo", userViewModel);
+                await Clients.Caller.SendAsync("getProfileInfo", userViewModel);
             }
             catch (Exception ex)
             {
-                Clients.Caller.SendAsync("onError", "OnConnected:" + ex.Message);
+                await Clients.Caller.SendAsync("onError", "OnConnected:" + ex.Message);
             }
-            return base.OnConnectedAsync();
         }
 
-        public override Task OnDisconnectedAsync(Exception exception)
+        public async Task DisconnectAsync(string userName)
         {
             try
             {
-                var user = _Connections.Where(u => u.UserName == IdentityName).First();
+                var user = _Connections.Where(u => u.UserName == userName).First();
                 _Connections.Remove(user);
 
                 // Tell other users to remove you from their list
-                Clients.OthersInGroup(user.CurrentRoom).SendAsync("removeUser", user);
+                await Clients.OthersInGroup(user.CurrentRoom).SendAsync("removeUser", user);
 
                 // Remove mapping
                 _ConnectionsMap.Remove(user.UserName);
             }
             catch (Exception ex)
             {
-                Clients.Caller.SendAsync("onError", "OnDisconnected: " + ex.Message);
+                await Clients.Caller.SendAsync("onError", "OnDisconnected: " + ex.Message);
             }
-
-            return base.OnDisconnectedAsync(exception);
-        }
-
-        private string IdentityName
-        {
-            get { return Context.User.Identity.Name; }
         }
     }
 }
