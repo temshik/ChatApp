@@ -12,11 +12,11 @@ namespace ChatApp.Bll.Services
     public class RoomService : IRoomService
     {
         private IUnitOfWork Database { get; set; }
-        public readonly ILogger _logger;
+        public readonly ILogger<RoomService> _logger;
         private IMapper _mapper { get; set; }
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public RoomService(IUnitOfWork uow, ILogger logger, IMapper mapper, IHubContext<ChatHub> hubContext)
+        public RoomService(IUnitOfWork uow, ILogger<RoomService> logger, IMapper mapper, IHubContext<ChatHub> hubContext)
         {
             Database = uow;
             _logger = logger;

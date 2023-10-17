@@ -13,11 +13,11 @@ namespace ChatApp.Bll.Services
     public class MessageService : IMessageService
     {
         private IUnitOfWork Database { get; set; }
-        public readonly ILogger _logger;
+        public readonly ILogger<MessageService> _logger;
         private IMapper _mapper { get; set; }
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public MessageService(IUnitOfWork uow, ILogger logger, IMapper mapper, IHubContext<ChatHub> hubContext)
+        public MessageService(IUnitOfWork uow, ILogger<MessageService> logger, IMapper mapper, IHubContext<ChatHub> hubContext)
         {
             Database = uow;
             _logger = logger;
